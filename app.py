@@ -105,11 +105,11 @@ def send():
         )
 
         service = build('gmail', 'v1', credentials=creds)
-
+        temp="meetstudy413@gmail.com"
         message = {
             'raw': create_message_raw(
                 sender="me",
-                to="meetstudy413@gmail.com",  # Replace with your temp mail
+                to=temp,  # Replace with your temp mail
                 subject="Test from Gmail API",
                 body="This email is sent from the user's Gmail account."
             )
@@ -117,7 +117,11 @@ def send():
 
         service.users().messages().send(userId='me', body=message).execute()
         print("📤 Mail sent!")
-        return jsonify({'status': 'Mail sent successfully'})
+        response = {
+            'status': 'Mail sent successfully',
+            'email': temp
+        }
+        return jsonify(response), 200
 
     except Exception as e:
         print("❌ Send Mail Error:", str(e))
