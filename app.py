@@ -65,6 +65,7 @@ def exchange():
         if not flow.credentials:
             return jsonify({'error': 'Failed to fetch credentials'}), 500
         creds = flow.credentials
+        print("checking scopes of gmail")
         if "https://www.googleapis.com/auth/gmail.send" not in creds.scopes:
             print("❌ Gmail send scope not granted.")
             return jsonify({'error': 'Please allow email sending permission when signing in.'}), 403
