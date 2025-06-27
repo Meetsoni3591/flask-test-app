@@ -29,6 +29,7 @@ def creds_to_dict(creds):
     }
 @app.route('/', methods=['GET'])
 def home():
+    print("🏠 Home Route Accessed")
     return jsonify({'message': 'Flask server is running'}), 200
 @app.route('/exchange', methods=['POST'])
 def exchange():
