@@ -68,7 +68,10 @@ def exchange():
         print("checking scopes of gmail")
         if "https://www.googleapis.com/auth/gmail.send" not in creds.scopes:
             print("❌ Gmail send scope not granted.")
-            return jsonify({'error': 'Please allow email sending permission when signing in.'}), 403
+            return jsonify({
+                'error': 'Scope has changed',
+                'details': 'User did not grant gmail.send scope'
+            }), 200  # ✅ send as 200 so frontend can handle it
         print("🔑 Credentials Object:", creds)
         idinfo = google_id_token.verify_oauth2_token(
             creds.id_token,
