@@ -99,48 +99,75 @@ def exchange():
         print("❌ Exchange Error:", str(e))
         return jsonify({'error': str(e)}), 500
 
+# @app.route('/send', methods=['POST'])
+# def send():
+#     try:
+#         data = request.json
+#         print("📬 Send Request Data:", data)
+#         user_id = request.json.get('user_id')
+#         if user_id not in tokens:
+#             return jsonify({'error': 'Invalid user ID'}), 400
+
+#         creds_data = tokens[user_id]
+#         creds = Credentials(
+#             token=creds_data['token'],
+#             refresh_token=creds_data.get('refresh_token'),
+#             token_uri=creds_data['token_uri'],
+#             client_id=creds_data['client_id'],
+#             client_secret=creds_data['client_secret'],
+#             scopes=creds_data['scopes']
+#         )
+
+#         service = build('gmail', 'v1', credentials=creds)
+#         temp="meetstudy413@gmail.com"
+#         message = {
+#             'raw': create_message_raw(
+#                 sender="me",
+#                 to=temp,  # Replace with your temp mail
+#                 subject="Test from Gmail API",
+#                 body="This email is sent from the user's Gmail account."
+#             )
+#         }
+
+#         service.users().messages().send(userId='me', body=message).execute()
+#         print("📤 Mail sent!")
+#         response = {
+#             'status': 'Mail sent successfully',
+#             'email': temp
+#         }
+#         return jsonify(response), 200
+
+#     except Exception as e:
+#         print("❌ Send Mail Error:", str(e))
+#         return jsonify({'error': str(e)}), 500
 @app.route('/send', methods=['POST'])
 def send():
     try:
         data = request.json
-        print("📬 Send Request Data:", data)
-        user_id = request.json.get('user_id')
-        if user_id not in tokens:
-            return jsonify({'error': 'Invalid user ID'}), 400
+        user_id = data.get('user_id')
+        emails = data.get('emails')
 
-        creds_data = tokens[user_id]
-        creds = Credentials(
-            token=creds_data['token'],
-            refresh_token=creds_data.get('refresh_token'),
-            token_uri=creds_data['token_uri'],
-            client_id=creds_data['client_id'],
-            client_secret=creds_data['client_secret'],
-            scopes=creds_data['scopes']
-        )
+        if user_id not in tokens or not emails:
+            return jsonify({'error': 'Invalid request'}), 400
 
+        creds = google.oauth2.credentials.Credentials(**tokens[user_id])
         service = build('gmail', 'v1', credentials=creds)
-        temp="meetstudy413@gmail.com"
-        message = {
-            'raw': create_message_raw(
-                sender="me",
-                to=temp,  # Replace with your temp mail
-                subject="Test from Gmail API",
-                body="This email is sent from the user's Gmail account."
-            )
-        }
 
-        service.users().messages().send(userId='me', body=message).execute()
-        print("📤 Mail sent!")
-        response = {
-            'status': 'Mail sent successfully',
-            'email': temp
-        }
-        return jsonify(response), 200
+        for email in emails:
+            message = {
+                'raw': create_message_raw(
+                    sender="me",
+                    to=email,
+                    subject="Test Email",
+                    body="This email is sent using Gmail API via React + Flask."
+                )
+            }
+            service.users().messages().send(userId='me', body=message).execute()
 
+        return jsonify({'status': f'Emails sent to {len(emails)} addresses.'})
     except Exception as e:
         print("❌ Send Mail Error:", str(e))
         return jsonify({'error': str(e)}), 500
-
 import base64
 from email.mime.text import MIMEText
 
