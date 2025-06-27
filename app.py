@@ -149,8 +149,10 @@ def send():
 
         if user_id not in tokens or not emails:
             return jsonify({'error': 'Invalid request'}), 400
-
-        creds = google.oauth2.credentials.Credentials(**tokens[user_id])
+        print("📬 Send Request Data:", data)
+        from google.oauth2 import id_token as google_id_token
+        from google.auth.transport import requests as google_requests
+        creds = Credentials(**tokens[user_id])
         service = build('gmail', 'v1', credentials=creds)
 
         for email in emails:
