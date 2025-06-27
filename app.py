@@ -30,7 +30,7 @@ def creds_to_dict(creds):
 @app.route('/', methods=['GET'])
 def home():
     print("🏠 Home Route Accessed")
-    return jsonify({'message': 'Flask server is running'}), 200
+    return jsonify({'message': 'Flask server is runningg'}), 200
 @app.route('/exchange', methods=['POST'])
 def exchange():
     try:
@@ -59,11 +59,17 @@ def exchange():
         )
         flow.redirect_uri = 'postmessage'  # 👈 match here too
         print("➡️ Using redirect_uri:", flow.redirect_uri)
-        flow.fetch_token(code=code)
-        print("✅ Token fetched successfully")
-        print("🔑 Credentials:", flow.credentials)
-        if not flow.credentials:
-            return jsonify({'error': 'Failed to fetch credentials'}), 500
+        try:
+            flow.fetch_token(code=code)
+        except Exception as scope_err:
+            error_str = str(scope_err)
+            if "Scope has changed" in error_str:
+                print("❌ Gmail send scope NOT granted by user.")
+                return jsonify({
+                    "error": "Scope has changed",
+                    "details": error_str
+                }), 200  # ✅ don't return 500
+            raise  # Re-raise any other error
         creds = flow.credentials
         print("checking scopes of gmail")
         if "https://www.googleapis.com/auth/gmail.send" not in creds.scopes:
